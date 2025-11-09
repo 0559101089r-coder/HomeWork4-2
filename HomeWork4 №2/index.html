@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Добавление продукта</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Добавить продукт</h1>
+    <form id="productForm" novalidate>
+      <div class="form-group">
+        <label for="title">Название</label>
+        <input type="text" id="title" placeholder="Минимум 3 символа">
+        <div class="error" id="titleError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Цена</label>
+        <input type="number" id="price" placeholder="Введите сумму" step="0.01">
+        <div class="error" id="priceError"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="image">Ссылка на изображение</label>
+        <input type="text" id="image" placeholder="URL изображения">
+        <div class="error" id="imageError"></div>
+      </div>
+
+      <button type="submit" id="submitBtn">Добавить</button>
+    </form>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="./main.js"></script>
+</body>
+</html>
+
