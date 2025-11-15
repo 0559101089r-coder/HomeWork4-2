@@ -1,87 +1,92 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('productForm');
-  const titleEl = document.getElementById('title');
-  const priceEl = document.getElementById('price');
-  const imageEl = document.getElementById('image');
-  const submitBtn = document.getElementById('submitBtn');
-  const toast = document.getElementById('toast');
+let container = document.querySelector("#container");
+let form = document.querySelector("#form");
+let submitBtn = document.querySelector("#submitBtn");
 
-  const titleError = document.getElementById('titleError');
-  const priceError = document.getElementById('priceError');
-  const imageError = document.getElementById('imageError');
+let title = document.querySelector("#title");
+let price = document.querySelector("#price");
+let image = document.querySelector("#image");
 
-  function validate() {
-    let isValid = true;
+let titleError = document.querySelector("#titleError");
+let priceError = document.querySelector("#priceError");
+let imageError = document.querySelector("#imageError");
 
-    
-    if (titleEl.value.trim().length < 3) {
-      titleError.textContent = 'Минимум 3 символа';
-      isValid = false;
-    } else {
-      titleError.textContent = '';
-    }
+let toast = document.querySelector("#toast");
 
-    
-    const price = parseFloat(priceEl.value);
-    if (isNaN(price) || price <= 0) {
-      priceError.textContent = 'Введите сумму';
-      isValid = false;
-    } else {
-      priceError.textContent = '';
-    }
+function showToast(message) {
+  toast.textContent = message;
+  toast.style.display = "block";
 
-    
-    try {
-      new URL(imageEl.value);
-      imageError.textContent = '';
-    } catch {
-      imageError.textContent = 'URL изображения';
-      isValid = false;
-    }
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2000);
+}
 
-    return isValid;
+function validate() {
+  let valid = true;
+
+  titleError.textContent = "";
+  priceError.textContent = "";
+  imageError.textContent = "";
+
+  if (title.value.trim().length < 3) {
+    titleError.textContent = "Минимум 3 символа";
+    valid = false;
   }
 
-  function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
+  if (Number(price.value) <= 0 || price.value === "") {
+    priceError.textContent = "Цена должна быть положительным числом";
+    valid = false;
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  const urlRegex = /^(https?:\/\/)[^\s]+$/;
+  if (!urlRegex.test(image.value)) {
+    imageError.textContent = "Введите валидный URL";
+    valid = false;
+  }
 
-    if (!validate()) return;
+  return valid;
+}
 
-    submitBtn.disabled = true;
+form.addEventListener("submit", async function (event) {
+  event.preventDefault();
 
-    const data = {
-      title: titleEl.value.trim(),
-      price: parseFloat(priceEl.value),
-      image: imageEl.value.trim()
-    };
+  if (!validate()) return;
 
-    try {
-      const response = await fetch('https://fakestoreapi.com/products/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Отправка...";
 
-      if (!response.ok) throw new Error('Ошибка сети');
+  const newData = {
+    title: title.value,
+    price: Number(price.value),
+    image: image.value,
+  };
 
-      showToast('Добавлено');
-      form.reset(); 
-    } catch (err) {
-      showToast('Ошибка при добавлении');
-      console.error(err);
-    } finally {
-      submitBtn.disabled = false;
-    }
-  });
+  try {
+    await fetch("https://fakestoreapi.com/products/", {
+      method: "POST",
+      body: JSON.stringify(newData),
+    });
+
+    showToast("Добавлено");
+
+    form.reset();
+  } catch (err) {
+    console.log(err);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Отправить";
+  }
 });
 
-
-
+fetch("https://fakestoreapi.com/products/")
+  .then((response) => response.json())
+  .then((data) => {
+    container.innerHTML = data
+      .map((item) => {
+        return `<div>${item.price}
+         <img src="${item.image}" alt="" />
+          ${item.rating.rate} ★ 
+           (${item.rating.count})</div>`;
+      })
+      .join("");
+  });
